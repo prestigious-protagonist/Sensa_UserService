@@ -1,0 +1,41 @@
+{
+  "development": {
+    "username": "root",
+    "password": "root123",
+    "database": "USER_SEARCH_DB_DEV",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "pool": {
+      "max": 10,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
+  },
+  "test": {
+    "username": "root",
+    "password": null,
+    "database": "database_test",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "pool": {
+      "max": 5,
+      "min": 0,
+      "acquire": 30000,
+      "idle": 10000
+    }
+  },
+  "production": {
+    "username": "root",
+    "password": null,
+    "database": "database_production",
+    "host": "127.0.0.1",
+    "dialect": "mysql",
+    "pool": {
+      "max": 15,
+      "min": 5,
+      "acquire": 60000,
+      "idle": 20000
+    }
+  }
+}
