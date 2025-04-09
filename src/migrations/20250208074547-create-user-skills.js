@@ -9,7 +9,7 @@ module.exports = {
         allowNull: false
       },
       userProfileId: {
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
         references: {
           model: 'userProfiles', // Must match the actual table name in DB

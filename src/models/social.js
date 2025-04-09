@@ -20,7 +20,17 @@ module.exports = (sequelize, DataTypes) => {
     }
   }
   social.init({
+    userProfileId:{
+      type: DataTypes.UUID,
+      allowNull: false,
+      unique: true,
+      references: {
+        model: 'userProfiles', // References the userProfiles table
+        key: 'id'              // References the id column in userProfiles
+      },
+      onDelete: 'CASCADE',      // Deletes social records when the userProfile is deleted
     
+    },
     linkedIn: {
       type: DataTypes.STRING,
       allowNull: false,

@@ -4,18 +4,19 @@ const axios = require('axios')
 const UserController = require('../../controller/userController')
 
 const {userProfile, social, Skills} = require('../../models/index')
-
+const requestRouter = require('./requests')
 const { jwtDecode } = require('jwt-decode');
 const ClientError = require('../../utils/client-error')
 const cookieParser = require('cookie-parser');
 router.use(cookieParser())
-const { authValidator,createProfileValidator, usernameValidator } = require('../../middlewares/validators');
+router.use('/request', requestRouter)
+const { authValidator,createProfileValidator, usernameValidator, updateProfileValidator } = require('../../middlewares/validators');
 router.get('/getAll', UserController.getAll)
 
 
 
 
-
+router.delete('/deleteAccount', authValidator, UserController.deleteAccount)
 
 
 
@@ -28,10 +29,10 @@ router.post('/createProfile', authValidator, createProfileValidator, UserControl
 router.patch('/updateUsername', usernameValidator, authValidator, UserController.updateUsername) 
 
 //mske a route for complete profile updation
-router.patch('/updateProfile',authValidator, createProfileValidator, UserController.updateProfile) 
+router.patch('/updateProfile',authValidator, updateProfileValidator,  UserController.updateProfile) 
 
 
-
+router.post('/myprofile', authValidator, UserController.myProfile)
 
 router.post('/usernameExists', usernameValidator, UserController.usernameIsvalid) 
 
@@ -90,4 +91,12 @@ router.use((err, req, res, next) => {
     res.status(500).json({ message: "Something went wrong!" });
 });
 
+
+router.use('*', (req, res)=>{
+    res.status(StatusCodes.FORBIDDEN).json({
+        status: StatusCodes.FORBIDDEN,
+        message: "Route Forbidden",
+        explanation : "No matching route exists",
+    })
+})
 module.exports = router

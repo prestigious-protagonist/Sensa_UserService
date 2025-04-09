@@ -13,6 +13,7 @@ const create = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         console.log(req.body)
+        console.log("****************")
         const userProfile = await this.UserService.create(req.body ,{transaction})
         await transaction.commit();
         return res.status(StatusCodes.CREATED).json({
@@ -23,7 +24,7 @@ const create = async (req, res) => {
             err: {}
         })
     } catch (error) {
-
+        console.log(error)
         await transaction.rollback();
         
         
@@ -176,10 +177,64 @@ const updateProfile = async (req, res) => {
     }
 }
 
+
+const myProfile = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        
+        const user = await this.UserService.myProfile(req.body.email, {transaction} ) 
+        await transaction.commit()
+        return res.status(StatusCodes.ACCEPTED).json({
+            status: 200,
+            message:"Profile fetched successfully",
+            data: user,
+            success: true
+        })
+    } catch (error) {
+        await transaction.rollback()
+        return res.status(error?.statusCode || 500).json({
+            err: error.name,
+            message:error.message,
+            data:error.explanation,
+            success: error.success,
+            
+        })
+    }
+}
+
+
+
+const deleteAccount = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        
+        const user = await this.UserService.deleteAccount(req.body.email, {transaction} ) 
+        await transaction.commit()
+        return res.status(StatusCodes.ACCEPTED).json({
+            status: 200,
+            message:"Profile deleted successfully",
+            data: user,
+            success: true
+        })
+    } catch (error) {
+        console.log(error)
+        await transaction.rollback()
+        return res.status(error?.statusCode || 500).json({
+            err: error.name,
+            message:error.message,
+            data:error.explanation,
+            success: error.success,
+            
+        })
+    }
+}
+
 module.exports = {
     create,
     getAll,
     usernameIsvalid,
     updateUsername,
-    updateProfile
+    updateProfile,
+    myProfile,
+    deleteAccount
 }

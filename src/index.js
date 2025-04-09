@@ -3,8 +3,10 @@ const bodyParser = require('body-parser')
 const { sequelize } = require('./models')
 const {PORT} = require('./config/server-Config')
 const app = express()
+const {initProducer} = require("./utils/queue/producer")
 const apiRouter = require('./routes/index')
-const {userProfile, social, Skills} = require('./models/index')
+const connectDB = require('./config/db')
+
 const startServer = () => {
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({extended: true}))
@@ -13,16 +15,15 @@ const startServer = () => {
     app.get('/', () => {
         console.log("User Service working")
     })
-    app.listen(PORT, async () => {
-        //sequelize.sync({ alter: true });
-
-    //    if(1) {
-    //     sequelize.sync({alter:true})
-    //    }
-   
-    
-        console.log(`Listening on PORT ${PORT}`)
-    })
+    connectDB().then(() => {
+        app.listen(3002, async() => {
+          console.log(process.env.EMAIL_PASS)
+          await initProducer()
+          console.log("Server running on port : "+PORT);
+      
+          
+        });
+  });
 }
 
 startServer()

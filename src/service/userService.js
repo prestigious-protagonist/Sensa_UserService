@@ -4,7 +4,8 @@ const {StatusCodes} = require('http-status-codes')
 const AppErrors = require('../utils/error-handler')
 const axios = require('axios')
 const ValidationError = require('../utils/validation-error')
-
+const { initProducer, sendMessage } = require('../utils/queue/producer');
+const { deleteAccount } = require('../controller/userController')
 class UserService {
     constructor(){
         this.UserRepository = new UserRepository()
@@ -39,12 +40,20 @@ class UserService {
     
             const skillsAdder = await this.addSkills({ skillsId, email, user: userProfile }, options);
             if (!skillsAdder) {
-                throw "Couldn't add skills at the moment";
+                throw "Couldn't add skills at the moment";  
             }
-    
+            //const emailSent = await this.UserRepository.sendEmail({email, username})
+            await initProducer()
+            sendMessage('send-email', {
+                email: email,
+                username: username,
+                msg: "Hi "+username+" welcome to sensa"
+              });
+            
             return { userProfile, skillsAdder };
     
         } catch (error) {
+            console.log(error)
             if(error.name == "SequelizeUniqueConstraintError" && error.errors[0].type == "unique violation") {
                             if(error.errors[0].path.startsWith("username")) {
                                throw new ClientError({
@@ -145,6 +154,9 @@ class UserService {
             return;
         } catch (error) {
             console.log(error)
+            if(error.name == "SequelizeUniqueConstraintError") {
+                throw new ValidationError(error);
+            }
             if(error instanceof ClientError) {
                 
                 throw error
@@ -177,9 +189,79 @@ class UserService {
             if(error.name == "SequelizeValidationError") {
                 throw new ValidationError(error);
             }
-                       
+                
+            if(error.name == "SequelizeUniqueConstraintError") {
+                throw new ValidationError(error);
+            }
             if (error instanceof ClientError) {
                 throw error;
+            }
+            throw new AppErrors("ServerError", "Something went wrong in service layer", "Logical issue occured",500, false);
+       
+        }
+    }
+
+
+
+    async myProfile(email, options) {
+        try {
+            const user = await this.UserRepository.myProfile(email, options)
+            if(!user) {
+                throw new ClientError({
+                    name: "CLIENT ERROR",
+                    message: "User unavailable.",
+                    explanation: "User profile not found.",
+                    statusCode: StatusCodes.INTERNAL_SERVER_ERROR
+                })
+            }
+            return user;
+        } catch (error) {
+            console.log(error)
+            if(error.name == "SequelizeUniqueConstraintError") {
+                throw new ValidationError(error);
+            }
+            if(error instanceof ClientError) {
+                
+                throw error
+            }
+            throw new AppErrors("ServerError", "Something went wrong in service layer", "Logical issue occured",500, false);
+       
+        }
+    }
+
+
+
+
+    async deleteAccount(email, options) {
+        try {
+            
+            const u1 = await this.UserRepository.getUserByEmail(email, options)
+            if(!u1?.id) throw new Error("line 238 userService service layer")
+            const user = await this.UserRepository.deleteAccount(email, options)
+            if(!user) {
+                throw new ClientError({
+                    name: "CLIENT ERROR",
+                    message: "Couldn't delete account.",
+                    explanation: "Something went wrong.",
+                    statusCode: StatusCodes.INTERNAL_SERVER_ERROR
+                })
+            }
+            sendMessage('profile-deletion', {
+                email: email,
+                id: u1.id,
+            });
+            
+            
+            
+            return user;
+        } catch (error) {
+            console.log(error)
+            if(error.name == "SequelizeUniqueConstraintError") {
+                throw new ValidationError(error);
+            }
+            if(error instanceof ClientError) {
+                
+                throw error
             }
             throw new AppErrors("ServerError", "Something went wrong in service layer", "Logical issue occured",500, false);
        

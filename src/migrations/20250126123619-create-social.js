@@ -10,8 +10,9 @@ module.exports = {
         type: Sequelize.INTEGER
       },
       userProfileId:{
-        type: Sequelize.INTEGER,
+        type: Sequelize.UUID,
         allowNull: false,
+        unique: true,
         references: {
           model: 'userProfiles', // References the userProfiles table
           key: 'id'              // References the id column in userProfiles

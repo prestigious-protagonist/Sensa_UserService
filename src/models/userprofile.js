@@ -86,7 +86,7 @@ const social = require('./social');
         validate: {
           isEmail: true
         }
-      }
+      },
     }, {
       sequelize,
       modelName: 'userProfile',
@@ -95,7 +95,13 @@ const social = require('./social');
         age() {
           return this.getAge(); // Getter method for `age`
         }
-      }
+      },
+      indexes:[
+        {
+          unique: true,
+          fields: ['email']
+        }
+      ]
     });
     
     return userProfile;

@@ -4,12 +4,14 @@ const AppErrors = require('../utils/error-handler');
 const ValidationError = require('../utils/validation-error');
 const ClientError = require('../utils/client-error');
 const { StatusCodes } = require('http-status-codes');
+const { initProducer, sendMessage } = require('../utils/queue/producer');
 const { Op } = require('sequelize');
 const userprofile = require('../models/userprofile');
-
+const user = require('../../../AuthService/src/models/user');
+const { v4: uuidv4 } = require('uuid');
+const sendBasicEmail = require("../service/email-service");
 class UserRepository {
     async create (profileData, options)  {
-        
         try {
             const userProfExists = await userProfile.findOne({
                 where:{
@@ -24,7 +26,7 @@ class UserRepository {
                     statusCode: StatusCodes.BAD_REQUEST
                 })
             }
-            const userProf = await userProfile.create(profileData,options)
+            const userProf = await userProfile.create({...profileData, id: uuidv4()},options)
             console.log("PROFILE CREATED")
             if (!userProf) {
                 throw new Error("Error creating user profile");
@@ -41,11 +43,24 @@ class UserRepository {
         } catch (error) {
             
             
-            
+            console.log(error)
             console.log("Something went wrong at repository layer.")
             throw error;
         }
     }
+    async sendEmail({ username, email }) {
+        try {
+            await sendBasicEmail(
+                "jaskaranyt123@gmail.com",
+                email,
+                "Response from Sensa",
+                "Hi " + username +" your acc is succ activated..."
+            );
+            return true;
+        } catch (error) {
+            throw error;
+        }
+    };
     async getAll(userId) {
         try {
             const users = await userProfile.findAll({
@@ -79,13 +94,14 @@ class UserRepository {
     async updateUsername({ username, email }, options) {
         try {
             const usernameExists = await this.usernameIsvalid(username);
-            if (usernameExists) {
-                throw new ClientError({
-                    name: "Username Already Taken",
-                    message: "The username is already in use.",
-                    statusCode: StatusCodes.BAD_REQUEST
-                });
-            }
+            //let db handle its constraints too
+            // if (usernameExists) {
+            //     throw new ClientError({
+            //         name: "Username Already Taken",
+            //         message: "The username is already in use.",
+            //         statusCode: StatusCodes.BAD_REQUEST
+            //     });
+            // }
     
             // Find the user by email
             const user = await userProfile.findOne({
@@ -112,6 +128,9 @@ class UserRepository {
     }
     
     async updateProfile(data, options) {
+        
+        const {username, experience, gender, skillsId, email} = data;
+        
         try {
             const user = await userProfile.findOne({
                 where:{
@@ -124,6 +143,33 @@ class UserRepository {
                     message: "Create a profile first.",
                     explanation: "Though u r a user but ur profile isnt created yet.",
                     statusCode: StatusCodes.BAD_REQUEST
+                })
+            }
+            
+            const DOB  = user.dataValues.DOB
+            
+            // check if new exp is > dob
+            const currentYear = new Date().getFullYear();
+            const dobYear = new Date(DOB).getFullYear()
+            const today = new Date();
+            const dob = new Date(DOB);
+
+            if (dob > today) {
+                throw new ClientError({
+                    name: "Invalid value for DOB",
+                    message: "Invalid DOB!",
+                    explanation: "DOB cannot be in the future.",
+                    statusCode: StatusCodes.BAD_REQUEST,
+                    success: false
+                });
+            }
+            if(experience > currentYear-dobYear) {
+                throw new ClientError({
+                    name: "Invalid value for experience",
+                    message: "Experience cannot be more than user's age !",
+                    explanation: "Invalid request body",
+                    statusCode: StatusCodes.BAD_REQUEST,
+                    success: false
                 })
             }
             //user exists
@@ -219,8 +265,68 @@ class UserRepository {
         }
     }
 
+    async myProfile(email, options) {
+        try {
+            
+            const user = await userProfile.findOne({
+                where: { email },
+                include: [
+                    {
+                        model: social, // Include social profile
+                        as: "social",  // Must match alias in association
+                    },
+                    {
+                        model: Skills,  // Include skills
+                        through: { attributes: [] }, // Exclude join table columns
+                    }
+                ],
+                
+            }, options);
+            return user;
+        } catch (error) {
+            throw error;
+        }
+    }
 
 
+
+    async deleteAccount(email, options) {
+        try {
+            const user = await userProfile.destroy({
+                where:{
+                    email
+                }
+                
+            }, options);
+            //async process to delete user acc
+            // await initProducer()
+            
+            
+            return true;
+        } catch (error) {
+            
+        console.log(error)
+            throw error;
+        }
+    }
+    async getUserByEmail(email) {
+        try {
+            const user = await userProfile.findOne({
+                where:{
+                    email
+                }
+            })
+            return user
+        } catch (error) {
+            
+        console.log(error)
+            throw error
+        }
+    }
+
+
+
+ 
     
     
     
