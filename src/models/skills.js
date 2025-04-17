@@ -13,7 +13,10 @@ module.exports = (sequelize, DataTypes) => {
       // define association here
       this.belongsToMany(models.userProfile, {
         through: 'User_Skills',
-          onDelete: 'CASCADE'
+          onDelete: 'CASCADE',
+          
+        foreignKey: 'skillId',  // ⬅ lowercase
+        otherKey: 'userProfileId'
       } )
       
     }
