@@ -2,8 +2,8 @@
 
 /** @type {import('sequelize-cli').Migration} */
 module.exports = {
-  async up(queryInterface, Sequelize) {
-    await queryInterface.bulkInsert('Skills', [
+  async up (queryInterface, Sequelize) {
+    await queryInterface.bulkInsert('InterestedIns', [
       {
         name: 'JavaScript',
         createdAt: new Date(),
@@ -27,7 +27,7 @@ module.exports = {
     ], {});
   },
 
-  async down(queryInterface, Sequelize) {
-    //await queryInterface.bulkDelete('Skills', null, {});
+  async down (queryInterface, Sequelize) {
+   
   }
 };

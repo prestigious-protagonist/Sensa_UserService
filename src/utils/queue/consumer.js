@@ -9,7 +9,7 @@ const connectDB = require('../connectDB');
 
 const kafka = new Kafka({
   clientId: 'sensa-app',
-  brokers: ['3.110.87.108:9092']
+  brokers: ['13.203.161.225:9092']
 });
 
 const consumer = kafka.consumer({ groupId: 'email-group' });

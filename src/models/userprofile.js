@@ -30,8 +30,20 @@ const social = require('./social');
         this.belongsToMany(models.Skills, {
           through: 'User_Skills',
           onDelete: 'CASCADE',
-          foreignKey: 'userProfileId',
-          otherKey: 'skillId'  // ⬅ lowercase 's'
+          foreignKey: {
+            name: 'userProfileId',
+            type: DataTypes.UUID,  // Explicitly set UUID type
+          },
+          otherKey: 'skillId',
+        } )
+        this.belongsToMany(models.InterestedIns, {
+          through: 'Interested_Skills',
+          onDelete: 'CASCADE',
+          foreignKey: {
+            name: 'userProfileId',
+            type: DataTypes.UUID,  // Explicitly set UUID type
+          },
+          otherKey: 'skillId',
         } )
         //userprofileId col will be added to social 
        

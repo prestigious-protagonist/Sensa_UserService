@@ -164,75 +164,81 @@ const usernameValidator = async (req, res, next) => {
     
 // }
 
-
-
-
-
-const updateProfileValidator = async(req, res, next) => {
+const updateProfileValidator = async (req, res, next) => {
     try {
-        const { sessionClaims } = getAuth(req);
-            if(!sessionClaims?.userEmail) {
-                console.log("CAME HERE")
-                throw new ClientError({
-                    name: "SESSION_OVER",
-                    message: "session doesn't exists",
-                    explanation: "Login please",
-                    statusCode: StatusCodes.BAD_REQUEST,
-                    success: false
-                })
-            }
-            req.body.email = sessionClaims.userEmail 
-        const {username, experience, gender, skillsId, email} = req.body;
-        const allowedFields = ["username", "experience", "gender", "skillsId", "email", "bio", "profilePicture"];
-
-        if (Object.keys(req.body).some((field) => !allowedFields.includes(field))) {
-            throw new ClientError({
-                name: "Invalid request body",
-                message: "Unexpected request body",
-                explanation: "Access restricted",
-                statusCode: StatusCodes.BAD_REQUEST,
-                success: false
-            })
-        }
-
-        if(req.body.DOB || req.body.age) 
-            throw new ClientError({
-                name: "Unauthorized",
-                message: "You cannot edit your age / DOB",
-                explanation: "Access restricted",
-                statusCode: StatusCodes.BAD_REQUEST,
-                success: false
-            })
-        if(!(username && gender && experience && skillsId && email)) {
-            
-            throw new ClientError({
-                name: "MISSING_FIELDS",
-                message: "Missing Fields",
-                explanation: "Missing fields from request body",
-                statusCode: StatusCodes.BAD_REQUEST,
-                success: false
-            })
-        }
-        if (!["Male", "Female", "Other"].includes(gender)) {
-            throw new ClientError({
-                name: "Invalid gender type",
-                message: "Gender could be Male, Female or Other only",
-                explanation: "Invalid request body",
-                statusCode: StatusCodes.BAD_REQUEST,
-                success: false
-            })
-        }
-        //check if exp is greater tahn age in repo layer after fetching dob from db
-        
-        next()
+        console.log(req.body)
+      const { sessionClaims } = getAuth(req);
+  
+      if (!sessionClaims?.userEmail) {
+        throw new ClientError({
+          name: "SESSION_OVER",
+          message: "Session doesn't exist",
+          explanation: "Login please",
+          statusCode: StatusCodes.BAD_REQUEST,
+          success: false
+        });
+      }
+  
+      // set email first
+      req.body.email = sessionClaims.userEmail;
+  
+      const allowedFields = [
+        "username",
+        "experience",
+        "DOB",
+        "gender",
+        "bio",
+        "pfp",
+        "skillsId",
+        "linkedinUrl",
+        "githubUrl",
+        "interestedSkillsId",
+        "email",
+        "oauthId"
+      ];
+  
+      if (Object.keys(req.body).some((field) => !allowedFields.includes(field))) {
+        throw new ClientError({
+          name: "Invalid request body",
+          message: "Unexpected request body",
+          explanation: "Access restricted",
+          statusCode: StatusCodes.BAD_REQUEST,
+          success: false
+        });
+      }
+  
+      // destructure AFTER setting email
+      const { username, gender, experience, skillsId, email } = req.body;
+  
+      if (!(username && gender && experience && skillsId && email)) {
+        throw new ClientError({
+          name: "MISSING_FIELDS",
+          message: "Missing Fields",
+          explanation: "Missing fields from request body",
+          statusCode: StatusCodes.BAD_REQUEST,
+          success: false
+        });
+      }
+  
+      if (!["Male", "Female", "Other"].includes(gender)) {
+        throw new ClientError({
+          name: "Invalid gender type",
+          message: "Gender could be Male, Female or Other only",
+          explanation: "Invalid request body",
+          statusCode: StatusCodes.BAD_REQUEST,
+          success: false
+        });
+      }
+  
+      next();
     } catch (error) {
-        console.log(error)
-        next(error)
-        
+      console.log(error);
+      next(error);
     }
-    
+  };
+  
+  
 
-}
 module.exports = {
     createProfileValidator,
     authValidator,

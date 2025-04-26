@@ -11,7 +11,7 @@ class UserService {
         this.UserRepository = new UserRepository()
     }
 
-    async create({ pfp, bio, experience, gender, DOB, username, skillsId, email }, options) {
+    async create({ pfp, bio, experience, gender, DOB, username, skillsId, email, linkedinUrl, githubUrl, interestedSkillsId }, options) {
         try { 
             console.log("******");
     
@@ -37,10 +37,23 @@ class UserService {
             if (!userProfile) {
                 throw "Error while creating userProfile";
             }
-    
+            const addSocials = await this.UserRepository.addSocials({
+                userId: userProfile.id,
+                linkedinUrl,
+                githubUrl
+            }, options)
+            if(!addSocials) {
+                
+                throw new AppErrors("ServerError", "Something went wrong in service layer", "Logical issue occurred", 500, false);
+            }
             const skillsAdder = await this.addSkills({ skillsId, email, user: userProfile }, options);
             if (!skillsAdder) {
                 throw "Couldn't add skills at the moment";  
+            }
+
+            const interestedSkillsAdder = await this.addInterestedSkills({ interestedSkillsId, email, user: userProfile }, options);
+            if (!interestedSkillsAdder) {
+                throw "Couldn't add ineterested skills at the moment";  
             }
             //const emailSent = await this.UserRepository.sendEmail({email, username})
             await initProducer()
@@ -88,6 +101,24 @@ class UserService {
                 })
             }
             return addSkill
+        } catch (error) {
+            console.log(error)
+            throw new AppErrors("ServerError", "Something went wrong in service layer", "Logical issue occured",500, false);
+       
+        }
+    }
+    async addInterestedSkills(data, options) {
+        try {
+            const addInterestedSkill = await this.UserRepository.addInterestedSkills(data, options)
+            if(!addInterestedSkill) {
+                throw new ClientError({
+                    name: "Couldn't add skills",
+                    message: "Cannot add skills at the moment",
+                    explanation: "Error adding skills",
+                    statusCode: StatusCodes.INTERNAL_SERVER_ERROR
+                })
+            }
+            return addInterestedSkill
         } catch (error) {
             console.log(error)
             throw new AppErrors("ServerError", "Something went wrong in service layer", "Logical issue occured",500, false);

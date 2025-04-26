@@ -1,5 +1,5 @@
 
-const {userProfile, social, sequelize, Skills} = require('../models/index');
+const {userProfile, social, sequelize, Skills, InterestedIns} = require('../models/index');
 const AppErrors = require('../utils/error-handler');
 const ValidationError = require('../utils/validation-error');
 const ClientError = require('../utils/client-error');
@@ -47,6 +47,8 @@ class UserRepository {
             throw error;
         }
     }
+
+
     async sendEmail({ username, email }) {
         try {
             await sendBasicEmail(
@@ -128,7 +130,7 @@ class UserRepository {
     
     async updateProfile(data, options) {
         
-        const {username, experience, gender, skillsId, email} = data;
+        const {username, experience, gender, skillsId, email, interestedSkillsId} = data;
         
         try {
             const user = await userProfile.findOne({
@@ -180,9 +182,9 @@ class UserRepository {
             }, options)
             
             const updateSkills = await this.updateSkills(data.skillsId, updatedUser, options )
+            const updateInterests = await this.updateInterests(data.interestedSkillsId, updatedUser, options)
 
-
-            return {updatedUser, updateSkills}
+            return {updatedUser, updateSkills, updateInterests}
 
 
         } catch (error) {
@@ -220,7 +222,35 @@ class UserRepository {
             throw error;
         }
     }
+    async updateInterests(skillsId, updatedUser , options) {
+        try {
+            // Ensure skillsId is an array and contains valid numbers
+            const skillIdsArray = Array.isArray(skillsId) 
+                ? skillsId.map(id => Number(id)).filter(id => !isNaN(id)) 
+                : (!isNaN(Number(skillsId)) ? [Number(skillsId)] : []);
     
+            if (skillIdsArray.length === 0) {
+                throw new Error("No valid skill IDs provided");
+            }
+    
+            // Fetch the skills from the database
+            const skills = await InterestedIns.findAll({
+                where: { id: skillIdsArray }
+            }, options);
+    
+            if (skills.length === 0) {
+                throw new Error("No valid skills found");
+            }
+    
+            // Update user's skills by setting new ones (removes old skills and adds new)
+            await updatedUser.setInterestedIns(skills, options);
+    
+            return skills ;
+        } catch (error) {
+            console.error("Error in updateSkills:", error);
+            throw error;
+        }
+    }
     async getUserProfielById(userId) {
         try {
             const user = await userProfile.findOne({
@@ -264,6 +294,29 @@ class UserRepository {
         }
     }
 
+    async addInterestedSkills(data, options) {
+        try {
+            
+            const skillIdsArray = Array.isArray(data.interestedSkillsId) ? data.interestedSkillsId.map(Number) : [Number(data.interestedSkillsId)];
+    
+            // Fetch skills from the database within the same transaction
+            const skills = await InterestedIns.findAll({
+                where: { id: skillIdsArray },
+                transaction: options.transaction
+            });
+            console.log("IOIOIOIO")
+            console.log(skills)
+    
+            // Associate skills with the data.user instance
+            await data.user.addInterestedIns(skills, { transaction: options.transaction });
+    
+            return { skills };
+        } catch (error) {
+            console.error("Error in addSkills:", error);
+            throw error;
+        }
+    }
+
     async myProfile(email, options) {
         try {
             
@@ -276,6 +329,10 @@ class UserRepository {
                     },
                     {
                         model: Skills,  // Include skills
+                        through: { attributes: [] }, // Exclude join table columns
+                    },
+                    {
+                        model: InterestedIns,  // Include skills
                         through: { attributes: [] }, // Exclude join table columns
                     }
                 ],
@@ -319,6 +376,24 @@ class UserRepository {
         } catch (error) {
             
         console.log(error)
+            throw error
+        }
+    }
+
+    async addSocials({userId, githubUrl, linkedinUrl}, options) {
+        try {
+            console.log("IPIPIPIPIPI")
+            console.log(userId+githubUrl+linkedinUrl)
+            const addSocials = await social.create({
+                id: uuidv4(),
+                userProfileId: userId,
+                linkedIn: linkedinUrl,
+                github: githubUrl
+            }, options)
+            return addSocials;
+        } catch (error) {
+            
+            console.log(error)
             throw error
         }
     }
