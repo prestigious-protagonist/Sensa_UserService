@@ -1,3 +1,4 @@
+require("dotenv").config()
 const cloudinary = require('../config/cloudinary-config')
 const multer = require('multer');
 const storage = multer.memoryStorage(); // Files are stored in memory
@@ -5,43 +6,62 @@ const upload = multer({ storage: storage });
 const axios = require('axios');
 const ClientError = require('../utils/client-error');
 const {StatusCodes} = require('http-status-codes');
+
+const { getAuth } = require("@clerk/express");
+
+
 const AppErrors = require('../utils/error-handler');
 
+const JWKS_URL = 'https://coherent-shiner-22.clerk.accounts.dev/.well-known/jwks.json';
+const AUDIENCE = 'http://localhost:3000';
 
+const ISSUER = 'https://coherent-shiner-22.clerk.accounts.dev';
+
+let JWKS;
 const authValidator = async(req, res, next) => {
-     try {
-        console.log(req.body)
-            const response = await axios.get("http://localhost:3001/authService/api/v1/users/status/isAuthenticated",{
-                withCredentials: true,
-                headers: { Cookie: req.headers.cookie },
-            })
-          
-            if(!response.data.success) {
-                throw new {
-                    name: "Failed to retrieve email from cookies",
-                    message: "Try again later",
-                    data:[],
-                    success: false
-                }
-            }
-            const email = response.data.data.email;
-            console.log(email)
-            // Set email in req.params for GET, otherwise in req.body
-            if (req.method === "GET") {
-            req.params.email = email;
-            } else {
-            req.body.email = email;
-            }
-            console.log("*********")
-            next()
-        } catch (error) {
-            console.log(error)
-            next(error)
-        }
+    const { createRemoteJWKSet, jwtVerify } = await import('jose');
+
+    if (!JWKS) {
+      JWKS = createRemoteJWKSet(new URL(JWKS_URL));
+    }
+  
+    const token =
+      req.headers.authorization?.split(' ')[1] || req.cookies?.__session;
+  
+    if (!token) {
+      return res.status(401).json({ error: 'No token provided' });
+    }
+  
+    try {
+      const { payload } = await jwtVerify(token, JWKS, {
+        issuer: ISSUER,
+      });
+  
+      req.user = payload;
+      
+      console.log("see : "+req.auth)
+      req.body.oauthId = req.auth.userId
+      next();
+    } catch (error) {
+      console.error('Authentication failed:', error);
+      return res.status(401).json({ error: 'Session doesnt exists' });
+    }
 }
 
 const createProfileValidator = async(req, res, next) => {
         try {
+            const { sessionClaims } = getAuth(req);
+            if(!sessionClaims?.userEmail) {
+                console.log("CAME HERE")
+                throw new ClientError({
+                    name: "SESSION_OVER",
+                    message: "session doesn't exists",
+                    explanation: "Login please",
+                    statusCode: StatusCodes.BAD_REQUEST,
+                    success: false
+                })
+            }
+            req.body.email = sessionClaims.userEmail 
             const {username, DOB, experience, gender, skillsId, email} = req.body;
             
             if(!(username && gender && DOB && experience && skillsId && email)) {
@@ -148,6 +168,18 @@ const usernameValidator = async (req, res, next) => {
 
 const updateProfileValidator = async(req, res, next) => {
     try {
+        const { sessionClaims } = getAuth(req);
+            if(!sessionClaims?.userEmail) {
+                console.log("CAME HERE")
+                throw new ClientError({
+                    name: "SESSION_OVER",
+                    message: "session doesn't exists",
+                    explanation: "Login please",
+                    statusCode: StatusCodes.BAD_REQUEST,
+                    success: false
+                })
+            }
+            req.body.email = sessionClaims.userEmail 
         const {username, experience, gender, skillsId, email} = req.body;
         const allowedFields = ["username", "experience", "gender", "skillsId", "email", "bio", "profilePicture"];
 

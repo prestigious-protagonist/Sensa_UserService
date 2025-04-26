@@ -8,13 +8,14 @@ const {StatusCodes} = require("http-status-codes")
 const AppErrors = require('../utils/error-handler');
 const ValidationError = require('../utils/validation-error');
 const {jwtDecode} = require('jwt-decode')
+
+const { getAuth } = require("@clerk/express");
 this.UserService = new UserService()
 const create = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         console.log(req.body)
-        console.log("****************")
-        const userProfile = await this.UserService.create(req.body ,{transaction})
+        const userProfile = await this.UserService.create(req.body,{transaction})
         await transaction.commit();
         return res.status(StatusCodes.CREATED).json({
             status: 201,
@@ -181,8 +182,19 @@ const updateProfile = async (req, res) => {
 const myProfile = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
-        
-        const user = await this.UserService.myProfile(req.body.email, {transaction} ) 
+        const { sessionClaims } = getAuth(req);
+        if(!sessionClaims?.userEmail) {
+            console.log("CAME HERE")
+            throw new ClientError({
+                name: "SESSION_OVER",
+                message: "session doesn't exists",
+                explanation: "Login please",
+                statusCode: StatusCodes.BAD_REQUEST,
+                success: false
+            })
+        }
+        const email = sessionClaims.userEmail 
+        const user = await this.UserService.myProfile(email, {transaction} ) 
         await transaction.commit()
         return res.status(StatusCodes.ACCEPTED).json({
             status: 200,
@@ -207,8 +219,19 @@ const myProfile = async (req, res) => {
 const deleteAccount = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
-        
-        const user = await this.UserService.deleteAccount(req.body.email, {transaction} ) 
+        const { sessionClaims } = getAuth(req);
+        if(!sessionClaims?.userEmail) {
+            console.log("CAME HERE")
+            throw new ClientError({
+                name: "SESSION_OVER",
+                message: "session doesn't exists",
+                explanation: "Login please",
+                statusCode: StatusCodes.BAD_REQUEST,
+                success: false
+            })
+        }
+        const email = sessionClaims.userEmail
+        const user = await this.UserService.deleteAccount(email, {transaction} ) 
         await transaction.commit()
         return res.status(StatusCodes.ACCEPTED).json({
             status: 200,

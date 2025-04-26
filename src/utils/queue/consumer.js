@@ -4,12 +4,12 @@ require('dotenv').config({ path: require('path').resolve(__dirname, '../../../.e
 
 const { Kafka } = require('kafkajs');
 const sendBasicEmail = require('../../service/email-service'); // adjust path if needed
-const {deleteAccount, deleteConnections} = require('./utilities');
+const { deleteConnections} = require('./utilities');
 const connectDB = require('../connectDB');
 
 const kafka = new Kafka({
   clientId: 'sensa-app',
-  brokers: ['13.201.19.44:9092']
+  brokers: ['3.110.87.108:9092']
 });
 
 const consumer = kafka.consumer({ groupId: 'email-group' });
@@ -39,7 +39,6 @@ const startConsumer = async () => {
         // Call different function here
         
         console.log(`Profile deletion function triggered for ${email}`);
-        await deleteAccount(email); 
         console.log(`Connection deletion function triggered for ID: ${id}`);
         await deleteConnections(id);
         await initProducer()

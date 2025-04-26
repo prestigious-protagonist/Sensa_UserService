@@ -2,7 +2,7 @@ const { Kafka } = require('kafkajs');
 
 const kafka = new Kafka({
   clientId: 'sensa-app',
-  brokers: ['13.201.19.44:9092']
+  brokers: ['3.110.87.108:9092']
 });
 
 const producer = kafka.producer();
@@ -23,6 +23,7 @@ const sendMessage = async (topic, messageObj) => {
   });
 
   console.log(`Sent message to topic: ${topic}`);
+  console.log(messageObj)
 };
 
 module.exports = {

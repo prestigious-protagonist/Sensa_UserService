@@ -85,9 +85,10 @@ const social = require('./social');
         type: DataTypes.STRING,
         allowNull: false,
         unique: true,
-        validate: {
+        validate:{
           isEmail: true
         }
+        
       },
     }, {
       sequelize,

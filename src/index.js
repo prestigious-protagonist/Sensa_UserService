@@ -6,15 +6,15 @@ const app = express()
 const {initProducer} = require("./utils/queue/producer")
 const apiRouter = require('./routes/index')
 const connectDB = require('./config/db')
-
+app.get('/', () => {
+  console.log("User Service working")
+})
 const startServer = () => {
     app.use(bodyParser.json())
     app.use(bodyParser.urlencoded({extended: true}))
 
     app.use('/userService/api', apiRouter)
-    app.get('/', () => {
-        console.log("User Service working")
-    })
+    
     connectDB().then(() => {
         app.listen(3002, async() => {
           console.log(process.env.EMAIL_PASS)

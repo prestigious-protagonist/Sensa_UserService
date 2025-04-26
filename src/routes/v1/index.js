@@ -2,7 +2,8 @@ const express = require('express')
 const router = express.Router()
 const axios = require('axios')
 const UserController = require('../../controller/userController')
-
+const {StatusCodes} = require("http-status-codes") 
+const { clerkMiddleware } = require('@clerk/express')
 const {userProfile, social, Skills} = require('../../models/index')
 const requestRouter = require('./requests')
 const { jwtDecode } = require('jwt-decode');
@@ -10,13 +11,19 @@ const ClientError = require('../../utils/client-error')
 const cookieParser = require('cookie-parser');
 router.use(cookieParser())
 router.use('/request', requestRouter)
+router.use(
+    clerkMiddleware({
+      publishableKey: process.env.CLERK_PUBLISHABLE_KEY,
+      secretKey: process.env.CLERK_SECRET_KEY,  // Make sure this is defined in .env
+    })
+  );
 const { authValidator,createProfileValidator, usernameValidator, updateProfileValidator } = require('../../middlewares/validators');
 router.get('/getAll', UserController.getAll)
 
 
 
 
-router.delete('/deleteAccount', authValidator, UserController.deleteAccount)
+router.delete('/deleteAccount', UserController.deleteAccount)
 
 
 
@@ -24,7 +31,7 @@ router.delete('/deleteAccount', authValidator, UserController.deleteAccount)
 
 //move authvalidator to add emai in body in apigateway
 
-router.post('/createProfile', authValidator, createProfileValidator, UserController.create) //createProfile
+router.post('/createProfile', createProfileValidator, UserController.create) //createProfile //done
 
 router.patch('/updateUsername', usernameValidator, authValidator, UserController.updateUsername) 
 
@@ -32,7 +39,7 @@ router.patch('/updateUsername', usernameValidator, authValidator, UserController
 router.patch('/updateProfile',authValidator, updateProfileValidator,  UserController.updateProfile) 
 
 
-router.post('/myprofile', authValidator, UserController.myProfile)
+router.get('/myprofile', UserController.myProfile) //done
 
 router.post('/usernameExists', usernameValidator, UserController.usernameIsvalid) 
 

@@ -52,9 +52,10 @@ module.exports = {
         type: Sequelize.STRING,
         allowNull: false,
         unique: true,
-        validate: {
+        validate:{
           isEmail: true
         }
+        
       },
       createdAt: {
         allowNull: false,

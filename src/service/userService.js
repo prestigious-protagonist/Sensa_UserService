@@ -11,7 +11,7 @@ class UserService {
         this.UserRepository = new UserRepository()
     }
 
-    async create({ pfp, bio, experience, gender, email, DOB, username, skillsId }, options) {
+    async create({ pfp, bio, experience, gender, DOB, username, skillsId, email }, options) {
         try { 
             console.log("******");
     
@@ -236,7 +236,12 @@ class UserService {
         try {
             
             const u1 = await this.UserRepository.getUserByEmail(email, options)
-            if(!u1?.id) throw new Error("line 238 userService service layer")
+            if(!u1?.id) throw new ClientError({
+                name: "CLIENT ERROR",
+                message: "Account doesnt exists.",
+                explanation: "Something went wrong.",
+                statusCode: StatusCodes.INTERNAL_SERVER_ERROR
+            })
             const user = await this.UserRepository.deleteAccount(email, options)
             if(!user) {
                 throw new ClientError({
@@ -246,6 +251,7 @@ class UserService {
                     statusCode: StatusCodes.INTERNAL_SERVER_ERROR
                 })
             }
+            await initProducer()
             sendMessage('profile-deletion', {
                 email: email,
                 id: u1.id,
