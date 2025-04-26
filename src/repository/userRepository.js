@@ -7,7 +7,6 @@ const { StatusCodes } = require('http-status-codes');
 const { initProducer, sendMessage } = require('../utils/queue/producer');
 const { Op } = require('sequelize');
 const userprofile = require('../models/userprofile');
-const user = require('../../../AuthService/src/models/user');
 const { v4: uuidv4 } = require('uuid');
 const sendBasicEmail = require("../service/email-service");
 class UserRepository {
