@@ -9,7 +9,7 @@ class ConnectionService {
     constructor(){
         this.ConnectionRepository = new ConnectionRepository()
     }
-    async create(data, options) {
+    async create(data, userDetails, options) {
         try {
             const allowedStatus = ["interested", "ignored"];
             if (!allowedStatus.includes(data.status)) {
@@ -23,7 +23,7 @@ class ConnectionService {
                 })
             }
 
-            const getUserByEmail = await this.ConnectionRepository.getUserByEmail(data?.email, options)
+            const getUserByEmail = await this.ConnectionRepository.getUserByEmail(userDetails?.userEmail, options)
             if(!getUserByEmail) {
                 throw new ClientError({
                     name: "user doesn't exist",
@@ -33,6 +33,13 @@ class ConnectionService {
                 })
             } 
             // ceheckign if the othe user exists
+            if(data?.toUserId.length<36)  
+                throw new ClientError({
+                    name: "Invalid ReceiverId",
+                    message: "Receiver doesn't have an acc.",
+                    explanation: "u are trying to send req to someone whon doesnt have a profile yet.",
+                    statusCode: StatusCodes.BAD_REQUEST
+                })
             const getUserById = await this.ConnectionRepository.getUserById(data?.toUserId, options)
             if(!getUserById) {
                 throw new ClientError({
@@ -63,6 +70,7 @@ class ConnectionService {
             return sendRequest;
         } catch (error) {
             
+        console.log(error)
             if (error instanceof ClientError) {
                 throw error;
             }

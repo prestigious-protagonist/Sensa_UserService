@@ -15,7 +15,7 @@ const create = async (req, res) => {
         req.body.toUserId = req.params.toUserId;
         req.body.status = req.params.status; 
         
-        const userProfile = await this.ConnectionService.create(req.body ,{transaction})
+        const userProfile = await this.ConnectionService.create(req.body, req.user ,{transaction})
         await transaction.commit();
         return res.status(StatusCodes.CREATED).json({
             status: 201,
@@ -25,7 +25,7 @@ const create = async (req, res) => {
             err: {}
         })
     } catch (error) {
-        
+        console.log(error)
         await transaction.rollback();
         
         

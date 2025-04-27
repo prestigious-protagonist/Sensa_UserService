@@ -40,9 +40,9 @@ const authValidator = async(req, res, next) => {
       });
   
       req.user = payload;
-      
-      console.log("see : "+req.auth)
-      req.body.oauthId = req.auth.userId
+      console.log(payload)
+    //   console.log("see : "+req.auth)
+    //   req.body.oauthId = req.auth.userId
       next();
     } catch (error) {
       console.error('Authentication failed:', error);
