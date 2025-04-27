@@ -125,9 +125,9 @@ class UserService {
        
         }
     }
-    async getAll(userId, options) {
+    async getAll(data, options) {
         try {
-            const users = await this.UserRepository.getAll(userId, options)
+            const users = await this.UserRepository.getAll(data, options)
             if(!users) {
                 throw new ClientError({
                     name: "INTERNAL SERVER ERROR",
@@ -146,7 +146,28 @@ class UserService {
        
         }
     }
-
+    async getUser(userId, options) {
+        try {
+            const users = await this.UserRepository.getUser(userId, options)
+            if(!users) {
+                throw new ClientError({
+                    name: "INTERNAL SERVER ERROR",
+                    message: "Cannot fetch users at the moment",
+                    explanation: "Error fetching users",
+                    statusCode: StatusCodes.INTERNAL_SERVER_ERROR
+                })
+            }
+            return users
+        } catch (error) {
+            
+            if(error instanceof ClientError) {
+                
+                throw error
+            }
+            throw new AppErrors("ServerError", "Something went wrong in service layer", "Logical issue occured",500, false);
+       
+        }
+    }
 
     async usernameIsvalid(username) {
         try {

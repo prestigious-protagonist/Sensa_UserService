@@ -73,8 +73,8 @@ const getAll = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         
-        const decoded = jwtDecode(req.cookies.token);    
-        const users = await this.UserService.getAll(decoded.id ,{transaction}) 
+         
+        const users = await this.UserService.getAll(req.user ,{transaction}) 
         await transaction.commit()
         return res.status(StatusCodes.CREATED).json({
             status: 200,
@@ -95,7 +95,32 @@ const getAll = async (req, res) => {
     }
 }
 
-
+const getUser = async (req, res) => {
+    
+    const transaction = await sequelize.transaction();
+    try {
+       
+         
+        const user = await this.UserService.getUser(req.params.id ,{transaction}) 
+        await transaction.commit()
+        return res.status(StatusCodes.CREATED).json({
+            status: 200,
+            message:"Successfully fetched user",
+            data: user,
+            success: true,
+            
+        })
+    } catch (error) {
+        await transaction.rollback();
+        return res.status(error?.statusCode || 500).json({
+            err: error.name,
+            message:error.message,
+            data:error.explanation,
+            success: error.success,
+            
+        })
+    }
+}
 const usernameIsvalid = async (req, res) => {
     
     try {
@@ -255,6 +280,7 @@ const deleteAccount = async (req, res) => {
 module.exports = {
     create,
     getAll,
+    getUser,
     usernameIsvalid,
     updateUsername,
     updateProfile,

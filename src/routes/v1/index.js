@@ -18,8 +18,9 @@ router.use(
     })
   );
 const { authValidator,createProfileValidator, usernameValidator, updateProfileValidator } = require('../../middlewares/validators');
-router.get('/getAll', UserController.getAll)
+router.get('/getAll', authValidator, UserController.getAll)
 
+router.get('/getUser/:id', UserController.getUser)
 
 
 

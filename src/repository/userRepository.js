@@ -62,14 +62,31 @@ class UserRepository {
             throw error;
         }
     };
-    async getAll(userId) {
+    async getAll(data, options) {
         try {
             const users = await userProfile.findAll({
                 where: {
-                    id: { [Op.ne]: userId } // Exclude logged-in user
+                    email: { [Op.ne]: data.userEmail } // Exclude logged-in user
                 },
                 include: [{ model: social, attributes: ['linkedIn', 'github'] }] // Optional: Include socials
-            });
+            }, options);
+
+            return users;
+        } catch (error) {
+            console.log(error);
+            throw error;
+        }
+    }
+
+    async getUser(userId, options) {
+        try {
+            const users = await userProfile.findOne({
+                where: {
+                    id: userId 
+                },
+                include: [{ model: social, attributes: ['linkedIn', 'github'] },{ model: Skills, attributes: ['name'] },
+                { model: InterestedIns, attributes: ['name'] }] // Optional: Include socials
+            }, options);
 
             return users;
         } catch (error) {
