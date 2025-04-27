@@ -3,6 +3,10 @@ const bodyParser = require('body-parser')
 const { sequelize } = require('./models')
 const {PORT} = require('./config/server-Config')
 const app = express()
+
+const crypto = require('crypto');
+global.crypto = crypto;
+
 const {initProducer} = require("./utils/queue/producer")
 const apiRouter = require('./routes/index')
 const db = require("./models/index")
