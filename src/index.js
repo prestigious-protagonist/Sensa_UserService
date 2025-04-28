@@ -11,8 +11,8 @@ const {initProducer} = require("./utils/queue/producer")
 const apiRouter = require('./routes/index')
 const db = require("./models/index")
 const connectDB = require('./config/db')
-app.get('/', () => {
-  console.log("User are hitting the User Service.")
+app.get('/', (req, res) => {
+  res.send("You are hitting the User Service.")
 })
 const startServer = async() => {
     app.use(bodyParser.json())

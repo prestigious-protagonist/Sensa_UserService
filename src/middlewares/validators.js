@@ -63,10 +63,11 @@ const createProfileValidator = async(req, res, next) => {
                     success: false
                 })
             }
+            console.log(r)
             req.body.email = sessionClaims.userEmail 
             const {username, DOB, experience, gender, skillsId, email} = req.body;
             
-            if(!(username && gender && DOB && experience && skillsId && email)) {
+            if(!username && !gender && !DOB && !experience && !skillsId && !email) {
                 
                 throw new ClientError({
                     name: "MISSING_FIELDS",
@@ -210,7 +211,7 @@ const updateProfileValidator = async (req, res, next) => {
       // destructure AFTER setting email
       const { username, gender, experience, skillsId, email } = req.body;
   
-      if (!(username && gender && experience && skillsId && email)) {
+      if (!username && !gender && !experience && !skillsId && !email) {
         throw new ClientError({
           name: "MISSING_FIELDS",
           message: "Missing Fields",
