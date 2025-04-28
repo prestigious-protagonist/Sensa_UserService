@@ -63,20 +63,19 @@ const createProfileValidator = async(req, res, next) => {
                     success: false
                 })
             }
-            console.log(r)
             req.body.email = sessionClaims.userEmail 
-            const {username, DOB, experience, gender, skillsId, email} = req.body;
-            
-            if(!username && !gender && !DOB && !experience && !skillsId && !email) {
-                
-                throw new ClientError({
-                    name: "MISSING_FIELDS",
-                    message: "Missing Fields",
-                    explanation: "Missing fields from request body",
-                    statusCode: StatusCodes.BAD_REQUEST,
-                    success: false
-                })
-            }
+              const {username, DOB, experience, gender, skillsId, email} = req.body;
+              
+              if(!username || !gender || !DOB || !experience || !skillsId || !email) {
+                  
+                  throw new ClientError({
+                      name: "MISSING_FIELDS",
+                      message: "Missing Fields",
+                      explanation: "Missing fields from request body",
+                      statusCode: StatusCodes.BAD_REQUEST,
+                      success: false
+                  })
+              }
             if (!["Male", "Female", "Other"].includes(gender)) {
                 throw new ClientError({
                     name: "Invalid gender type",
@@ -211,7 +210,7 @@ const updateProfileValidator = async (req, res, next) => {
       // destructure AFTER setting email
       const { username, gender, experience, skillsId, email } = req.body;
   
-      if (!username && !gender && !experience && !skillsId && !email) {
+      if (!username || !gender || !experience || !skillsId || !email) {
         throw new ClientError({
           name: "MISSING_FIELDS",
           message: "Missing Fields",
