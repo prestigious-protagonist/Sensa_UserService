@@ -71,6 +71,7 @@ class ConnectionService {
         } catch (error) {
             
         console.log(error)
+            console.log(error)
             if (error instanceof ClientError) {
                 throw error;
             }
@@ -222,9 +223,10 @@ class ConnectionService {
 
 
     async getFeed(data, options) {
-        console.log(data)
         try {
             //get the current user's id from email first
+            
+            console.log(data)
             const getUserByEmail = await this.ConnectionRepository.getUserByEmail(data.email, options)
             if(!getUserByEmail) {
                 throw new ClientError({
@@ -265,8 +267,12 @@ class ConnectionService {
         
            const skip = (data.page - 1) * data.limit;
             const paginatedUsers = filteredUsers.slice(skip, skip + data.limit);
+           const totalSkills = await this.ConnectionRepository.getTotalSkills(options);
 
-            return paginatedUsers;
+           console.log(totalSkills)
+           const plainUsers = paginatedUsers.map(user => user.toJSON());
+
+           return { users: plainUsers, totalSkills };
            
 
         } catch (error) {

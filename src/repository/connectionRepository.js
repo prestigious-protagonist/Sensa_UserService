@@ -1,6 +1,7 @@
 const ValidationError = require("../utils/validation-error");
 const connectionRequestSchema = require("../models/connectionSchema/connection")
-const {userProfile} = require('../models/index');
+
+const {userProfile, social, sequelize, Skills, InterestedIns} = require('../models/index');
 const ClientError = require("../utils/client-error");
 const { v4: uuidv4 } = require('uuid');
 const { Op } = require('sequelize');
@@ -9,6 +10,7 @@ const {StatusCodes} = require("http-status-codes")
 class ConnectionRepository {
     async getUserByEmail(email, options) {
         try {
+            console.log("EMAIL IS "+email)
             const user = await userProfile.findOne({
                 where:{
                     email,
@@ -25,7 +27,21 @@ class ConnectionRepository {
             const user = await userProfile.findOne({
                 where:{
                     id,
-                }
+                },
+                // include: [
+                //     {
+                //         model: social, // Include social profile
+                //         as: "social",  // Must match alias in association
+                //     },
+                //     {
+                //         model: Skills,  // Include skills
+                //         through: { attributes: [] }, // Exclude join table columns
+                //     },
+                //     {
+                //         model: InterestedIns,  // Include skills
+                //         through: { attributes: [] }, // Exclude join table columns
+                //     }
+                // ],
             },options)
             if(!user) return false;
             return true;
@@ -277,7 +293,21 @@ class ConnectionRepository {
                 const users = await userProfile.findAll({
                                 where: {
                                     id: { [Op.ne]: loggedInUserId } 
-                                }
+                                },
+                                include: [
+                                    {
+                                        model: social, // Include social profile
+                                        as: "social",  // Must match alias in association
+                                    },
+                                    {
+                                        model: Skills,  // Include skills
+                                        through: { attributes: [] }, // Exclude join table columns
+                                    },
+                                    {
+                                        model: InterestedIns,  // Include skills
+                                        through: { attributes: [] }, // Exclude join table columns
+                                    }
+                                ],
                             });
                 
                 return users;
@@ -288,6 +318,15 @@ class ConnectionRepository {
                 throw error;
             }
         }
+        async getTotalSkills(options) {
+                try {
+                    const totalSkills = await Skills.count({},options);
+                    console.log(totalSkills)
+                    return totalSkills;
+                } catch (error) {
+                    throw error;
+                }
+            }
 }
 
 module.exports = ConnectionRepository

@@ -149,7 +149,7 @@ const getFeed = async (req, res) => {
         
         limit = limit>50? 50: limit
         const data ={
-            email: req.params.email,
+            email: req.user.userEmail,
             page: parseInt(req.query.page) || 1,
             limit : limit
         }
