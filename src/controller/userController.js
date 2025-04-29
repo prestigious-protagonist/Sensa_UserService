@@ -228,7 +228,9 @@ const myProfile = async (req, res) => {
             success: true
         })
     } catch (error) {
-        await transaction.rollback()
+        if (transaction && !transaction.finished) {
+            await transaction.rollback();
+        }
         return res.status(error?.statusCode || 500).json({
             err: error.name,
             message:error.message,

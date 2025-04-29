@@ -266,7 +266,12 @@ class UserService {
                     statusCode: StatusCodes.INTERNAL_SERVER_ERROR
                 })
             }
-            return user;
+            console.log("hi")
+            const totalSkills = await this.UserRepository.getTotalSkills(options);
+            console.log(totalSkills)
+            const plainUser = user.toJSON();
+
+            return { ...plainUser, totalSkills };
         } catch (error) {
             console.log(error)
             if(error.name == "SequelizeUniqueConstraintError") {

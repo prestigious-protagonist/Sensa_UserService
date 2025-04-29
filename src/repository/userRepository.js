@@ -360,6 +360,16 @@ class UserRepository {
             throw error;
         }
     }
+    async getTotalSkills(options) {
+        try {
+            const totalSkills = await Skills.count({},options);
+            console.log(totalSkills)
+            return totalSkills;
+        } catch (error) {
+            throw error;
+        }
+    }
+    
 
 
 
