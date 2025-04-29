@@ -11,7 +11,7 @@ class UserService {
         this.UserRepository = new UserRepository()
     }
 
-    async create({ pfp, bio, experience, gender, DOB, username, skillsId, email, linkedinUrl, githubUrl, interestedSkillsId }, options) {
+    async create({ profilePicture, bio, experience, gender, DOB, username, skillsId, email, linkedinUrl, githubUrl, interestedSkillsId }, options) {
         try { 
             console.log("******");
     
@@ -30,7 +30,7 @@ class UserService {
             const age = calculateAge(DOB);
     
             const userProfile = await this.UserRepository.create(
-                { pfp, bio, experience, gender, email, DOB, username, age }, // Include age
+                { profilePicture, bio, experience, gender, email, DOB, username, age }, // Include age
                 options
             );
     
