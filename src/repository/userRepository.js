@@ -68,7 +68,9 @@ class UserRepository {
                 where: {
                     email: { [Op.ne]: data.userEmail } // Exclude logged-in user
                 },
-                include: [{ model: social, attributes: ['linkedIn', 'github'] }] // Optional: Include socials
+                include: [{ model: social, attributes: ['linkedIn', 'github'] },
+                { model: InterestedIns, attributes: ['name'] },
+                { model: Skills, attributes: ['name'] }] // Optional: Include socials
             }, options);
 
             return users;
