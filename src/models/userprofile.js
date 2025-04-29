@@ -58,6 +58,10 @@ const social = require('./social');
         allowNull: false,
         
       },
+      fullname:{
+        type:DataTypes.STRING,
+        allowNull: false,
+      },
       DOB:{
         type: DataTypes.DATEONLY,
         allowNull: false,

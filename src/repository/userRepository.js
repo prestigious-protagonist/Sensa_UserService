@@ -72,7 +72,7 @@ class UserRepository {
                 { model: InterestedIns, attributes: ['name'] },
                 { model: Skills, attributes: ['name'] }] // Optional: Include socials
             }, options);
-
+            console.log(users)
             return users;
         } catch (error) {
             console.log(error);

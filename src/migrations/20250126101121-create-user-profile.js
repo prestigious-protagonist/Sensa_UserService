@@ -9,10 +9,15 @@ module.exports = {
         type: Sequelize.UUID,
         defaultValue: Sequelize.UUIDV4
       },
+
       username: {
         type: Sequelize.STRING,
         unique: true,
         allowNull: false
+      },
+      fullname:{
+        type:Sequelize.STRING,
+        allowNull: false,
       },
       DOB:{
         type: Sequelize.DATEONLY,

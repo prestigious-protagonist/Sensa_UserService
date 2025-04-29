@@ -11,7 +11,7 @@ class UserService {
         this.UserRepository = new UserRepository()
     }
 
-    async create({ profilePicture, bio, experience, gender, DOB, username, skillsId, email, linkedinUrl, githubUrl, interestedSkillsId }, options) {
+    async create({ profilePicture, bio, experience, gender, DOB, username, skillsId, email,fullName, linkedinUrl, githubUrl, interestedSkillsId }, options) {
         try { 
             console.log("******");
     
@@ -30,7 +30,7 @@ class UserService {
             const age = calculateAge(DOB);
     
             const userProfile = await this.UserRepository.create(
-                { profilePicture, bio, experience, gender, email, DOB, username, age }, // Include age
+                { profilePicture, bio, experience, gender, email, DOB, username, age, fullname: fullName }, // Include age
                 options
             );
     
@@ -267,10 +267,12 @@ class UserService {
                 })
             }
             console.log("hi")
+            console.log(user?.toJSON()); // or user.get({ plain: true })
+            
             const totalSkills = await this.UserRepository.getTotalSkills(options);
             console.log(totalSkills)
             const plainUser = user.toJSON();
-
+            
             return { ...plainUser, totalSkills };
         } catch (error) {
             console.log(error)
