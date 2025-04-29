@@ -47,7 +47,7 @@ const getAllRequests = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         
-        const requests = await this.ConnectionService.getAllRequests(req.params.email ,{transaction})
+        const requests = await this.ConnectionService.getAllRequests(req.user.userEmail ,{transaction})
         await transaction.commit();
         return res.status(StatusCodes.CREATED).json({
             status: 201,
@@ -79,7 +79,7 @@ const requests = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         const data = {
-            email : req.body.email,
+            email : req.user.userEmail,
             status: req.params.status,
             requestId: req.params.requestId
         }

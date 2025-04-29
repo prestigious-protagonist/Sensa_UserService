@@ -12,7 +12,7 @@ router.post('/review/:status/:requestId',(req, res, next)=>{ //review req
 },authValidator, ConnectionController.requests)
 router.get('/received', authValidator, ConnectionController.getAllRequests)//pending requests
 
-router.get('/viewConnections', authValidator, ConnectionController.viewConnections)//pending requests
+router.get('/viewConnections', authValidator, ConnectionController.viewConnections)
 router.get('/feed', authValidator, ConnectionController.getFeed)
 
 router.use('*', (req, res)=>{
