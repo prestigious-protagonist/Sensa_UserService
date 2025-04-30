@@ -57,8 +57,7 @@ class ConnectionRepository {
                     }
                 ],
             },options)
-            if(!user) return false;
-            return true;
+            return user;
         } catch (error) {
             throw error;
         }
@@ -287,11 +286,20 @@ class ConnectionRepository {
                 });
         
                 // Fetch all connected users' profiles
-                const connectedUsers = await Promise.all(
-                    Array.from(uniqueUserIds).map(userId => this.getUserById(userId, options))
-                );
+                const connectedUsers = [];
+                for (const userId of uniqueUserIds) {
+                        try {
+                                const user = await this.getUserById(userId, options);
+        
+                                connectedUsers.push(user);
+                        } catch (err) {
+                                console.error(`Failed to fetch user ${userId}:`, err);
+                                // Optionally skip or push a placeholder/null
+                }
+                }
         
                 return connectedUsers;
+        
         
             } catch (error) {
                 console.log(error);
