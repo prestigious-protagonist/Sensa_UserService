@@ -383,7 +383,7 @@ class ConnectionRepository {
 
         async connectionExists(data,options) {
             try {
-                const exists = await connectionRequestSchema.find({
+                const exists = await connectionRequestSchema.findOne({
                    
                     _id: data.requestId
                    
