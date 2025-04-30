@@ -114,7 +114,7 @@ const viewConnections = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
         
-        const connections = await this.ConnectionService.viewConnections(req.params.email ,{transaction})
+        const connections = await this.ConnectionService.viewConnections(req.user.userEmail ,{transaction})
         await transaction.commit();
         return res.status(StatusCodes.OK).json({
             status: 200,
