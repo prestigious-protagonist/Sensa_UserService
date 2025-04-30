@@ -188,14 +188,17 @@ class ConnectionRepository {
         try {
             const getAllRequests = await connectionRequestSchema.find(
                 { receiverId: loggedInUserId, status: "interested" }
-            ).lean(); // Removes Mongoose methods & circular references
-            const userInfo = await this.getUserByUUID(loggedInUserId, options)
-            return [
-                { currentUserId: loggedInUserId ,
+            ).lean();
+            
+            const userInfo = await this.getUserByUUID(loggedInUserId, options);
+            
+            return {
+                currentUser: {
+                    currentUserId: loggedInUserId,
                     data: userInfo
-                }, 
-                ...getAllRequests.map(request => ({ ...request }))
-            ];
+                },
+                requests: getAllRequests.map(request => ({ ...request }))
+            };
             
             
         } catch (error) {
