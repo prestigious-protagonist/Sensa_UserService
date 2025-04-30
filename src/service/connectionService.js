@@ -228,7 +228,7 @@ class ConnectionService {
             //now in connection schema look for records where the sender/ receiverId is loggedInUserId & status is accepted
             const connections = await this.ConnectionRepository.viewConnections(loggedInUserId, options);
             
-            if(connections.connections.length == 0) {
+            if(connections.length == 0) {
                 throw new ClientError({
                     name: "Insufficient Resource",
                     statusCode: StatusCodes?.OK ,
@@ -238,10 +238,7 @@ class ConnectionService {
                     
                 })
             }
-            return {
-                count: connections.connections.length,
-                data: connections
-            };
+            return connections
             
 
         } catch (error) {

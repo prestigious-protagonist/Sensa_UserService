@@ -254,14 +254,14 @@ class ConnectionRepository {
         }
         async viewConnections(loggedInUserId, options) {
             try {
-                const currentUserInfo = await this.getUserByUUID(loggedInUserId, options)
+                //const currentUserInfo = await this.getUserByUUID(loggedInUserId, options)
                 const data = await connectionRequestSchema.find({
                     $or:[
                         {senderId: loggedInUserId, status: "accepted"},
                         {receiverId: loggedInUserId, status: "accepted"}
                     ]
                 },null, options)
-                return {currentUser: currentUserInfo, connections: data};
+                return data;
 
                 
             } catch (error) {
