@@ -164,26 +164,45 @@ class ConnectionService {
                     success: false
                 });
             }
-             if(data.status == "rejected") {
-                 const response = await this.ConnectionRepository.removeRequest( request, options)
-                 if(!response) throw new Error("Couldn't reject request at the moment")
-             }
-                // const requestCopy = JSON.parse(JSON.stringify(request));
-
-                // const updateStatus = await this.ConnectionRepository.updateStatus(data.status, request, options);
-                // if (!updateStatus) {
-                //     throw new Error("Server error: Unable to update connection status at the moment.");
-                // }
-
-                
-                // return {requestCopy, updateStatus};
-             
+            if (data.status === "rejected") {
+                const updateStatus = await this.ConnectionRepository.updateStatus("rejected", request, options);
+                if (!updateStatus) {
+                    throw new Error("Server error: Unable to update connection status to 'rejected'.");
+                }
             
+                const requestCopy = JSON.parse(JSON.stringify(request));
+                requestCopy.status = "rejected";
+            
+                const removed = await this.ConnectionRepository.removeRequest(request, options);
+                if (!removed) {
+                    throw new Error("Couldn't reject request at the moment");
+                }
+            
+                return {
+                    message: "Request rejected and removed.",
+                    request: requestCopy
+                };
+            }
+            if (data.status === "accepted") {
+                const updateStatus = await this.ConnectionRepository.updateStatus("accepted", request, options);
+                if (!updateStatus) {
+                    throw new Error("Server error: Unable to accept connection request.");
+                }
+            
+                const updatedRequest = JSON.parse(JSON.stringify(request));
+                updatedRequest.status = "accepted";
+            
+                return {
+                    message: "Request accepted.",
+                    request: updatedRequest
+                };
+            }
+
             return {
-                data: "Successfully rejected"
+                message: "No action taken",
+                request: null
             };
-
-
+            
         } catch (error) {
             if (error instanceof ClientError) {
                 throw error;
