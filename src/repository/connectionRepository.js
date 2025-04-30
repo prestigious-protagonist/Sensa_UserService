@@ -273,32 +273,26 @@ class ConnectionRepository {
                         { receiverId: loggedInUserId, status: "accepted" }
                     ]
                 }, null, options);
-        
-                const uniqueUserIds = new Set();
-        
-                // Extract other user IDs (excluding the logged-in user)
-                connections.forEach(conn => {
-                    if (conn.senderId !== loggedInUserId) {
-                        uniqueUserIds.add(conn.senderId);
-                    } else if (conn.receiverId !== loggedInUserId) {
-                        uniqueUserIds.add(conn.receiverId);
+                
+                const enrichedConnections = [];
+                
+                for (const conn of connections) {
+                    const otherUserId = conn.senderId === loggedInUserId ? conn.receiverId : conn.senderId;
+                
+                    try {
+                        const user = await this.getUserById(otherUserId, options);
+                        enrichedConnections.push({
+                            connectionId: conn._id,
+                            connectedUser: user
+                        });
+                    } catch (err) {
+                        console.error(`Failed to fetch user ${otherUserId}:`, err);
+                        // optionally skip or add a placeholder
                     }
-                });
-        
-                // Fetch all connected users' profiles
-                const connectedUsers = [];
-                for (const userId of uniqueUserIds) {
-                        try {
-                                const user = await this.getUserById(userId, options);
-        
-                                connectedUsers.push(user);
-                        } catch (err) {
-                                console.error(`Failed to fetch user ${userId}:`, err);
-                                // Optionally skip or push a placeholder/null
                 }
-                }
-        
-                return connectedUsers;
+                
+                return enrichedConnections;
+                
         
         
             } catch (error) {
