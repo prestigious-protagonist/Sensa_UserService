@@ -7,6 +7,7 @@ const {sequelize} = require("../models/index");
 const {StatusCodes} = require("http-status-codes")
 const AppErrors = require('../utils/error-handler');
 const ValidationError = require('../utils/validation-error');
+const CircularJSON = require('circular-json');
 const {jwtDecode} = require('jwt-decode')
 this.ConnectionService = new ConnectionService()
 const create = async (req, res) => {
@@ -119,11 +120,12 @@ const viewConnections = async (req, res) => {
         return res.status(StatusCodes.OK).json({
             status: 200,
             message: "Successfully fetched all connections",
-            data:connections,
+            data: CircularJSON.stringify(connections),
             success: true,
             err: {}
         })
     } catch (error) {
+        console.log(error)
         if (transaction.finished !== 'commit') {
             await transaction.rollback();
         }
