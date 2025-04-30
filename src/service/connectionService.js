@@ -342,6 +342,7 @@ class ConnectionService {
             
 
         } catch (error) {
+            console.log(error)
             if (error instanceof ClientError) {
                 throw error;
             }

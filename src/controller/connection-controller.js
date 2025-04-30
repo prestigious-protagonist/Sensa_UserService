@@ -186,6 +186,9 @@ const getFeed = async (req, res) => {
 const removeConnection = async (req, res) => {
     const transaction = await sequelize.transaction();
     try {
+        if(!req.params.requestId) {
+            throw new Error("RequestId not received")
+        }
         const data = {
             email : req.user.userEmail,
             requestId: req.params.requestId
