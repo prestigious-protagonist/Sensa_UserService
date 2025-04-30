@@ -85,8 +85,8 @@ const requests = async (req, res) => {
         }
         const requests = await this.ConnectionService.requests(data ,{transaction})
         await transaction.commit();
-        return res.status(StatusCodes.CREATED).json({
-            status: 201,
+        return res.status(StatusCodes.OK).json({
+            status: 200,
             message: `Request ${data.status}`,
             data:requests,
             success: true,
