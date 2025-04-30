@@ -67,11 +67,22 @@ class ConnectionService {
                     statusCode: StatusCodes.INTERNAL_SERVER_ERROR
                 })
             }
+
+            /*socket*/
+            // Notify NotificationService
+            
+                await axios.post('http://localhost:3007/routes/connection-request', {
+                toUserId: data?.toUserId,
+                fromUserId: senderId,
+                });                                     
+  
             return sendRequest;
         } catch (error) {
             
         console.log(error)
-            console.log(error)
+            // if(axios.isAxiosError(error)) {
+            //     console.log()
+            // }
             if (error instanceof ClientError) {
                 throw error;
             }
