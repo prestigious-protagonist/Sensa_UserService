@@ -124,9 +124,9 @@ const viewConnections = async (req, res) => {
             err: {}
         })
     } catch (error) {
-        await transaction.rollback();
-        
-        
+        if (transaction.finished !== 'commit') {
+            await transaction.rollback();
+        }
         if (!(error instanceof AppErrors || error instanceof ClientError)) {
             // If it's not an instance of AppError, it's an unexpected error
             error = new AppErrors();
