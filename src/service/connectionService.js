@@ -238,7 +238,10 @@ class ConnectionService {
                     
                 })
             }
-            return connections
+            return {
+                user: getUserByEmail,
+                connections: connections
+            };
             
 
         } catch (error) {
