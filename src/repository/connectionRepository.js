@@ -283,8 +283,9 @@ class ConnectionRepository {
                         const user = await this.getUserById(otherUserId, options);
                         enrichedConnections.push({
                             connectionId: conn._id,
-                            connectedUser: user
+                            ...user
                         });
+                        
                     } catch (err) {
                         console.error(`Failed to fetch user ${otherUserId}:`, err);
                         // optionally skip or add a placeholder
