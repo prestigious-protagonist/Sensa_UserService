@@ -368,31 +368,38 @@ class ConnectionRepository {
                 }
             }
 
-        async removeConnection(data,options) {
-            try {
-                const removedConnection = await connectionRequestSchema.deleteOne({
-                   
-                    _id: data.requestId
-                   
-                }, options);
-                return removedConnection;
-            } catch (error) {
-                throw error;
+            async removeConnection(data, options) {
+                try {
+                    const result = await connectionRequestSchema.deleteOne(
+                        { _id: data.requestId },
+                        options // session/transaction
+                    );
+            
+                    // Optional: Check if a document was actually deleted
+                    if (result.deletedCount === 0) {
+                        return null; // or throw error if you want to enforce deletion success
+                    }
+            
+                    return result;
+                } catch (error) {
+                    throw error;
+                }
             }
-        }
+            
 
-        async connectionExists(data,options) {
+        async connectionExists(data, options) {
             try {
-                const exists = await connectionRequestSchema.findOne({
-                   
-                    _id: data.requestId
-                   
-                }, options);
+                const exists = await connectionRequestSchema.findOne(
+                    { _id: data.requestId },
+                    null, // projection
+                    options // options like session
+                );
                 return exists;
             } catch (error) {
                 throw error;
             }
         }
+        
 
         
 }
