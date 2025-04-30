@@ -315,6 +315,33 @@ class ConnectionService {
       
         }
     }
+
+    async removeConnection(data, options) {
+        try {
+            //get the current user's id from email first
+            
+            const removeConnection = await this.ConnectionRepository.removeConnection(data, options);
+            if(!removeConnection) {
+                throw new ClientError({
+                    name: "Couldn't delete connection",
+                    message: "Couldn't remove connection at the moment",
+                    explanation: "",
+                    statusCode: StatusCodes.INTERNAL_SERVER_ERROR
+                })
+            }
+           return removeConnection
+            
+
+        } catch (error) {
+            if (error instanceof ClientError) {
+                throw error;
+            }
+    
+            throw new AppErrors("ServerError", "Something went wrong in service layer", "Logical issue occurred", 500, false);
+      
+        }
+    }
 }
+
 
 module.exports = ConnectionService

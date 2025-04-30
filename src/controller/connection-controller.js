@@ -181,10 +181,46 @@ const getFeed = async (req, res) => {
     }
 }
 
+const removeConnection = async (req, res) => {
+    const transaction = await sequelize.transaction();
+    try {
+        const data = {
+            email : req.user.userEmail,
+            requestId: req.params.requestId
+        }
+        const requests = await this.ConnectionService.removeConnection(data ,{transaction})
+        await transaction.commit();
+        return res.status(StatusCodes.OK).json({
+            status: 200,
+            message: "Connection removed!",
+            data:requests,
+            success: true,
+            err: {}
+        })
+    } catch (error) {
+        await transaction.rollback();
+        
+        
+        if (!(error instanceof AppErrors || error instanceof ClientError)) {
+            // If it's not an instance of AppError, it's an unexpected error
+            error = new AppErrors();
+           
+        }
+        return res.status(error.statusCode).json({
+            err: error.name,
+            message:error.message,
+            data:error.explanation,
+            success: error.success,
+            
+        })
+    }
+}
+
 module.exports = {
     create,
    getAllRequests,
    requests,
    viewConnections,
-   getFeed
+   getFeed,
+   removeConnection
 }

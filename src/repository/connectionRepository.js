@@ -330,6 +330,19 @@ class ConnectionRepository {
                     throw error;
                 }
             }
+
+        async removeConnection(data,options) {
+            try {
+                const removedConnection = await connectionRequestSchema.deleteOne({
+                   
+                    _id: data.requestId
+                   
+                }, options);
+                return removedConnection;
+            } catch (error) {
+                throw error;
+            }
+        }
 }
 
 module.exports = ConnectionRepository

@@ -15,6 +15,8 @@ router.get('/received', authValidator, ConnectionController.getAllRequests)//pen
 router.get('/viewConnections', authValidator, ConnectionController.viewConnections)
 router.get('/feed', authValidator, ConnectionController.getFeed)
 
+router.delete('/removeConnection', authValidator, ConnectionController.removeConnection)
+
 router.use('*', (req, res)=>{
     res.status(StatusCodes.FORBIDDEN).json({
         status: StatusCodes.FORBIDDEN,
