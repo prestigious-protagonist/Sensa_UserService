@@ -281,14 +281,18 @@ class ConnectionRepository {
                 
                     try {
                         const user = await this.getUserById(otherUserId, options);
+                
+                        // Convert Sequelize instance to plain object
+                        const plainUser = typeof user.toJSON === 'function' ? user.toJSON() : user;
+                
                         enrichedConnections.push({
                             connectionId: conn._id,
-                            ...user
+                            ...plainUser
                         });
-                        
+                
                     } catch (err) {
                         console.error(`Failed to fetch user ${otherUserId}:`, err);
-                        // optionally skip or add a placeholder
+                        // Optional: skip or push a fallback user object
                     }
                 }
                 
