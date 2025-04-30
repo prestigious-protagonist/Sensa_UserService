@@ -240,18 +240,18 @@ class ConnectionRepository {
                 throw error;
             }
         }
-        // async removeRequest(request, options) {
-        //     try {
-        //         const data = await request.deleteOne(options)
-        //         return data;
+        async removeRequest(request, options) {
+            try {
+                const data = await request.deleteOne(options)
+                return data;
 
                 
-        //     } catch (error) {
+            } catch (error) {
                 
-        // console.log(error)
-        //         throw error;
-        //     }
-        // }
+        console.log(error)
+                throw error;
+            }
+        }
         async viewConnections(loggedInUserId, options) {
             try {
                 const currentUserInfo = await this.getUserByUUID(loggedInUserId, options)

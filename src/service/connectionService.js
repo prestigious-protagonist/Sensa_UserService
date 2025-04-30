@@ -164,22 +164,25 @@ class ConnectionService {
                     success: false
                 });
             }
-            // if(data.status == "rejected") {
-            //     const response = await this.ConnectionRepository.removeRequest( request, options)
-            //     if(!response) throw new Error("Couldn't reject request at the moment")
-            // }else{
-                const requestCopy = JSON.parse(JSON.stringify(request));
+             if(data.status == "rejected") {
+                 const response = await this.ConnectionRepository.removeRequest( request, options)
+                 if(!response) throw new Error("Couldn't reject request at the moment")
+             }
+                // const requestCopy = JSON.parse(JSON.stringify(request));
 
-                const updateStatus = await this.ConnectionRepository.updateStatus(data.status, request, options);
-                if (!updateStatus) {
-                    throw new Error("Server error: Unable to update connection status at the moment.");
-                }
-                return {requestCopy, updateStatus};
-            // }
+                // const updateStatus = await this.ConnectionRepository.updateStatus(data.status, request, options);
+                // if (!updateStatus) {
+                //     throw new Error("Server error: Unable to update connection status at the moment.");
+                // }
+
+                
+                // return {requestCopy, updateStatus};
+             
             
-            // return {
-            //     data: "Successfully rejected"
-            // };
+            return {
+                data: "Successfully rejected"
+            };
+
 
         } catch (error) {
             if (error instanceof ClientError) {
