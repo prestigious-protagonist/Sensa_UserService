@@ -239,8 +239,8 @@ class ConnectionService {
                 })
             }
             return {
-                user: getUserByEmail,
-                connections: connections
+                
+                connection: connections
             };
             
 

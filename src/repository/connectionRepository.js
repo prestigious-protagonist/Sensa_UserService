@@ -268,23 +268,33 @@ class ConnectionRepository {
         }
         async viewConnections(loggedInUserId, options) {
             try {
-                //const currentUserInfo = await this.getUserByUUID(loggedInUserId, options)
-                const data = await connectionRequestSchema.find({
-                    $or:[
-                        {senderId: loggedInUserId, status: "accepted"},
-                        {receiverId: loggedInUserId, status: "accepted"}
+                const connections = await connectionRequestSchema.find({
+                    $or: [
+                        { senderId: loggedInUserId, status: "accepted" },
+                        { receiverId: loggedInUserId, status: "accepted" }
                     ]
-                },null, options)
-                return data;
-
-                
+                }, null, options);
+        
+                const enrichedConnections = await Promise.all(
+                    connections.map(async conn => {
+                        const otherUserId = conn.senderId === loggedInUserId ? conn.receiverId : conn.senderId;
+                        const otherUser = await this.getUserById(otherUserId, options);
+                        return {
+                            ...conn.toObject(),
+                            connectedUser: otherUser
+                        };
+                    })
+                );
+        
+                return enrichedConnections;
+        
             } catch (error) {
-                
-        console.log(error)
+                console.log(error);
                 throw error;
             }
         }
-
+        
+        
         async getRelatedUsers(loggedInUserId, options) {
             try {
                 
