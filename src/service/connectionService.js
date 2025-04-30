@@ -238,10 +238,7 @@ class ConnectionService {
                     
                 })
             }
-            return {
-                
-                connection: connections
-            };
+            return connections
             
 
         } catch (error) {

@@ -42,20 +42,20 @@ class ConnectionRepository {
                 where:{
                     id,
                 },
-                // include: [
-                //     {
-                //         model: social, // Include social profile
-                //         as: "social",  // Must match alias in association
-                //     },
-                //     {
-                //         model: Skills,  // Include skills
-                //         through: { attributes: [] }, // Exclude join table columns
-                //     },
-                //     {
-                //         model: InterestedIns,  // Include skills
-                //         through: { attributes: [] }, // Exclude join table columns
-                //     }
-                // ],
+                include: [
+                    {
+                        model: social, // Include social profile
+                        as: "social",  // Must match alias in association
+                    },
+                    {
+                        model: Skills,  // Include skills
+                        through: { attributes: [] }, // Exclude join table columns
+                    },
+                    {
+                        model: InterestedIns,  // Include skills
+                        through: { attributes: [] }, // Exclude join table columns
+                    }
+                ],
             },options)
             if(!user) return false;
             return true;
@@ -275,24 +275,30 @@ class ConnectionRepository {
                     ]
                 }, null, options);
         
-                const enrichedConnections = await Promise.all(
-                    connections.map(async conn => {
-                        const otherUserId = conn.senderId === loggedInUserId ? conn.receiverId : conn.senderId;
-                        const otherUser = await this.getUserById(otherUserId, options);
-                        return {
-                            ...conn.toObject(),
-                            connectedUser: otherUser
-                        };
-                    })
+                const uniqueUserIds = new Set();
+        
+                // Extract other user IDs (excluding the logged-in user)
+                connections.forEach(conn => {
+                    if (conn.senderId !== loggedInUserId) {
+                        uniqueUserIds.add(conn.senderId);
+                    } else if (conn.receiverId !== loggedInUserId) {
+                        uniqueUserIds.add(conn.receiverId);
+                    }
+                });
+        
+                // Fetch all connected users' profiles
+                const connectedUsers = await Promise.all(
+                    Array.from(uniqueUserIds).map(userId => this.getUserById(userId, options))
                 );
         
-                return enrichedConnections;
+                return connectedUsers;
         
             } catch (error) {
                 console.log(error);
                 throw error;
             }
         }
+        
         
         
         async getRelatedUsers(loggedInUserId, options) {
