@@ -14,7 +14,21 @@ class ConnectionRepository {
             const user = await userProfile.findOne({
                 where:{
                     email,
-                }
+                },
+                include: [
+                    {
+                        model: social, // Include social profile
+                        as: "social",  // Must match alias in association
+                    },
+                    {
+                        model: Skills,  // Include skills
+                        through: { attributes: [] }, // Exclude join table columns
+                    },
+                    {
+                        model: InterestedIns,  // Include skills
+                        through: { attributes: [] }, // Exclude join table columns
+                    }
+                ],
             },options)
             if(!user) return false;
             return user;
