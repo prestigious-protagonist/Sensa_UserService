@@ -380,6 +380,21 @@ class ConnectionRepository {
                 throw error;
             }
         }
+
+        async connectionExists(data,options) {
+            try {
+                const exists = await connectionRequestSchema.find({
+                   
+                    _id: data.requestId
+                   
+                }, options);
+                return exists;
+            } catch (error) {
+                throw error;
+            }
+        }
+
+        
 }
 
 module.exports = ConnectionRepository

@@ -320,6 +320,15 @@ class ConnectionService {
         try {
             //get the current user's id from email first
             
+            const connectionExists = await this.ConnectionRepository.connectionExists(data, options)
+            if(!connectionExists) {
+                throw new ClientError({
+                    name: "Couldn't delete connection",
+                    message: "Connection doesn't exists.",
+                    explanation: "",
+                    statusCode: StatusCodes.BAD_REQUEST
+                })
+            }
             const removeConnection = await this.ConnectionRepository.removeConnection(data, options);
             if(!removeConnection) {
                 throw new ClientError({
