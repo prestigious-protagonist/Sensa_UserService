@@ -120,7 +120,7 @@ const viewConnections = async (req, res) => {
         return res.status(StatusCodes.OK).json({
             status: 200,
             message: "Successfully fetched all connections",
-            data: CircularJSON.stringify(connections),
+            data: connections,
             success: true,
             err: {}
         })
